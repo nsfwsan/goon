@@ -10,7 +10,7 @@ body {
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
-    font-family: 'Brush Script MT', cursive;
+    font-family: system-ui, sans-serif;
 }
 
 #slideshow-grid {
@@ -202,22 +202,33 @@ a {
     display: inline-block;
 }
 
-#redditForm {
+#redditForm, #e621Form {
     width: 300px;
     margin: 0 auto;
 }
 
-#redditForm>div {
+#redditForm>div, #e621Form>div {
     display: flex;
     justify-content: space-between;
     margin-bottom: 5px;
+}
+
+#siteTitle {
+    font-family: 'Fredoka One', cursive;
+    font-size: 7vw;
+    color: #ff8fab;
+    -webkit-text-stroke: 4px #b8e0ff;
+    paint-order: stroke fill;
+    text-shadow: 0 0 30px #d0f0ff, 0 0 60px #b8e8ff;
+    letter-spacing: 6px;
+    margin: 0 0 10px 0;
 }
 
 #pickedSubreddits {
     text-align: right;
 }
 
-#redditSubmit {
+#redditSubmit, #e621Submit {
     padding: 7px;
     font-family: inherit;
     font-size: 25px;
@@ -227,7 +238,7 @@ a {
 
 
 @media (orientation: portrait) and (max-width: 1000px) {
-    .browse, #redditSubmit {
+    .browse, #redditSubmit, #e621Submit {
         font-size: 80px;
     }
     #settingsDialog {
@@ -250,11 +261,11 @@ a {
         height: 30px;
     }
 
-    img.titleContent {
-        width: 100%;
+    #siteTitle {
+        font-size: 14vw;
     }
 
-    #redditForm {
+    #redditForm, #e621Form {
         width: 90%;
     }
     #menu-hover {

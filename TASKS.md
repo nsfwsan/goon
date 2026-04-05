@@ -1,10 +1,8 @@
 # Tasks
 
-Tracked work items for SlideItUpNow.
+Tracked work items for Auto Goon.
 
 ## In Progress
-
-## Backlog
 
 ### Build E621.net Integration
 
@@ -18,7 +16,7 @@ Add e621.net as a content source alongside the existing Reddit integration, foll
 | Posts endpoint | `GET /posts.json` |
 | Response format | JSON |
 | Rate limit | Hard cap: 2 req/s — best practice: 1 req/s (503 on breach) |
-| User-Agent | **Required.** Custom string only — e.g. `SlideItUpNow/1.0 (by username on e621)`. Impersonating a browser UA results in a block. |
+| User-Agent | **Required.** Custom string only — e.g. `Auto Goon/1.0 (by username on e621)`. Impersonating a browser UA results in a block. |
 
 #### Request Parameters (`/posts.json`)
 
@@ -107,9 +105,68 @@ Add e621.net as a content source alongside the existing Reddit integration, foll
   - E621 video posts (`mp4`/`webm`) return a direct `file.url` — slide object uses `{format: 'video', url: ...}`, which `script.js` already handles via `vidDiv.src = slide.url`
   - Verify `scaledWidth` is set correctly from `file.width`/`file.height` before returning slides
 
-- [ ] **5. Verify CORS and connectivity**
+- [x] **5. Match E621 form styling to Reddit form**
+  - Inspect `style.css` for any rules scoped to `#redditForm` or its children and apply equivalent rules to `#e621Form`
+  - Verify the "From E621" button matches the appearance of "From reddit" and "Pick folder" (already shares `class="titleContent browse noForm"` so should inherit automatically — confirm visually)
+  - Verify form layout (label/input rows, spacing, submit button) is consistent with the Reddit form
+  - Verify the "Clear saved login" button and rating checkboxes are styled consistently with existing form controls
+
+- [ ] **6. Verify CORS and connectivity**
   - Confirm `e621.net/posts.json` responds with CORS headers permitting browser `fetch()` calls
   - Confirm browser's default `User-Agent` is acceptable (the custom UA rule targets automated scripts, not browsers making direct requests)
   - Document any CORS limitations in a code comment if issues arise
 
+## Backlog
+
+
+### Add Back Button to Slideshow
+
+Add a back button to the slideshow view that returns the user to the welcome screen. The button lives in the top-left corner, hidden by default, and fades in on hover.
+
+#### Scope
+
+- The slideshow is shown by hiding `#welcome` and displaying `#slideshow-grid`
+- A back button needs to sit above the grid (`z-index` above slides), visible only on hover
+- Returning to the welcome screen must cleanly stop the current slideshow — slides, timers, and HLS sources all need disposing
+
+#### Implementation Notes
+
+- Add a `<button id="slideshowBack">← Back</button>` to `index.html`, positioned `fixed` top-left, above the slideshow grid (`z-index: 4`)
+- Style in `style.css`: `opacity: 0` by default, `opacity: 1` on `#slideshowBack:hover`; use `transition: opacity 0.2s` for a smooth fade; give it enough padding to be an easy hover target
+- In `script.js`, add a `stopSlideShow()` function that:
+  - Clears all active slide timers (currently managed as local `timeout` vars inside `startSlideShow` closures — may need a module-level registry to track them)
+  - Destroys all HLS instances in `hlsSources` and clears the object
+  - Revokes all Blob URLs on current slide elements (`disposeResources` already does this per-element — call it on each slide)
+  - Empties all `.slideshow-row` elements
+  - Resets `inProgress = false` and `slidesFetcher = null`
+  - Hides `#slideshow-grid`, shows `#welcome`, restores `#menu-tip`
+  - Restores `.titleContent` and `.noForm` elements
+- Bind `#slideshowBack` to `stopSlideShow()` in `window.onload`
+- Hide `#slideshowBack` when on the welcome screen; show it when the slideshow starts (mirror how `#menu-tip` is hidden in `openReddit`/`openE621`/`openDir2`)
+
+#### Complexity Note
+
+The timer cleanup is the hardest part — `timeout` variables are currently scoped inside `startSlideShow` closures with no external reference. This will likely require a module-level `Set` or array to register active timeouts so `stopSlideShow()` can cancel them all.
+
+### Auto Resize UI Depending on Browser Size
+
+Ensure the welcome screen and forms scale gracefully across all browser sizes and orientations, beyond the existing portrait phone breakpoint.
+
+#### Scope
+
+- Welcome screen buttons and form controls currently use fixed `px` font sizes and widths that may feel too small on large displays or break on narrow desktop windows
+- The existing portrait media query (`orientation: portrait` and `max-width: 1000px`) handles phones but not intermediate sizes (small desktop windows, tablets in landscape, etc.)
+- The E621 and Reddit forms have a fixed `width: 300px` which may be too narrow or too wide depending on viewport
+
+#### Implementation Notes
+
+- Audit all fixed `px` sizes in `style.css` for the welcome screen and form elements; convert to `vw`/`vh`/`rem`/`%` where appropriate
+- Consider replacing the single portrait breakpoint with a fluid approach (e.g. `clamp()` for font sizes) so the UI scales continuously rather than snapping
+- The slideshow grid itself already scales correctly — focus on the welcome/form layer only
+- Test at common viewport widths: 360px (phone), 768px (tablet), 1280px (desktop), 1920px (large desktop)
+
 ## Done
+
+### Add Back Button to Menu Screens
+
+`← Back` button added to the top of `#redditForm` and `#e621Form`. `showWelcome()` in `script.js` reverses the form-show logic. Field values are preserved automatically.

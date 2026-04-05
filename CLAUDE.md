@@ -4,7 +4,7 @@ Guidelines and context for working on this project.
 
 ## Project Overview
 
-**SlideItUpNow** is a client-side tiled slideshow web app. No build step, no backend, no framework — pure vanilla JavaScript (ES6 modules) opened directly in a browser or served statically via GitHub Pages.
+**Auto Goon** is a client-side tiled slideshow web app. No build step, no backend, no framework — pure vanilla JavaScript (ES6 modules) opened directly in a browser or served statically via GitHub Pages.
 
 Hosted at: `goon.jhosan.top` (GitHub Pages, CNAME configured)
 

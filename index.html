@@ -2,6 +2,7 @@
 <html>
     <head>
         <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
         <script type="module" src="script.js"></script>
         <script src="tooltip.js"></script>
         <link href="style.css" rel="stylesheet"></style>
@@ -56,11 +57,14 @@
                         <path fill-opacity="0" stroke="#aaaaaa" stroke-width="2" d="m0,170 C0 180 90 180 90 170"></path>
                     </svg>
                 </div>
-                <img class="titleContent" src="resources/title.png"/>
-                <p class="titleContent noForm">Tiled slideshow for reddit or your local files.</p>
+                <h1 id="siteTitle" class="titleContent">Auto Goon</h1>
+                <p class="titleContent noForm">Tiled slideshow for Reddit or your local files.</p>
                 <p class="titleContent noForm">No files are uploaded. The slideshow is run on your computer.</p>
-                <button class="titleContent browse noForm" id="browse">Pick folder</button> <button class="titleContent browse noForm" id="browseReddit">From reddit</button> <button class="titleContent browse noForm" id="browseE621">From E621</button>
+                <button class="titleContent browse noForm" id="browse">Pick folder</button> <button class="titleContent browse noForm" id="browseReddit">From Reddit</button> <button class="titleContent browse noForm" id="browseE621">From E621</button>
                 <div id="redditForm" style="display: none;">
+                    <div>
+                        <button id="redditBack">← Back</button>
+                    </div>
                     <div>
                         <label>Profile</label>
                         <select id="profilePicker">
@@ -117,6 +121,9 @@
                     </div>
                 </div>
                 <div id="e621Form" style="display: none;">
+                    <div>
+                        <button id="e621Back">← Back</button>
+                    </div>
                     <div>
                         <label for="e621Tags">Tags</label>
                         <input type="text" id="e621Tags" placeholder="e.g. fox solo" autocomplete="off" />

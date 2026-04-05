@@ -1,4 +1,4 @@
-# SlideItUpNow
+# Auto Goon
 
 A tiled slideshow web app for displaying images and videos in a customisable grid layout. Content can be sourced from a local directory or from Reddit subreddits. Runs entirely client-side — no backend, no uploads.
 

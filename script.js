@@ -271,6 +271,14 @@ function showE621Form() {
     document.getElementById("e621Form").style.display = null
 }
 
+function showWelcome() {
+    document.getElementById("redditForm").style.display = 'none'
+    document.getElementById("e621Form").style.display = 'none'
+    for (let elem of document.getElementsByClassName("noForm")) {
+        elem.style.display = null
+    }
+}
+
 async function openE621() {
     if (await startE621()) {
         for (const e of document.getElementsByClassName("titleContent")) {
@@ -290,8 +298,10 @@ window.onload = () => {
     slideshowGrid = document.getElementById("slideshow-grid")
     document.getElementById("browseReddit").onclick = showRedditForm
     document.getElementById("redditSubmit").onclick = openReddit
+    document.getElementById("redditBack").onclick = showWelcome
     document.getElementById("browseE621").onclick = showE621Form
     document.getElementById("e621Submit").onclick = openE621
+    document.getElementById("e621Back").onclick = showWelcome
     initSettings(changeGrid)
     initReddit()
     initE621()
