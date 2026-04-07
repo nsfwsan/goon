@@ -2,12 +2,9 @@
 
 Tracked work items for Auto Goon.
 
-## In Progress
-
 ## Backlog
 
-
-### E621 "My Favourites" Mode
+### `E6-FAV` — E621 "My Favourites" Mode
 
 Add a "My Favourites" button to the E621 form that starts a slideshow of the logged-in user's saved posts, instead of a tag search.
 
@@ -31,53 +28,7 @@ The e621 API exposes favourites via `GET /favorites.json?user_id={id}` (authenti
 - Wire `#e621Favourites` to `openE621Favourites()` in `script.js` (mirrors `openE621()` but calls `startE621Favourites()`)
 - If the user ID fetch fails (bad credentials, network error), surface a clear error via the existing `showError()` helper
 
-### Integrate RedGifs
-
-Add RedGifs as a content source, either standalone or as an enhancement to the existing Reddit integration (Reddit posts often embed RedGifs links).
-
-#### Feasibility
-
-RedGifs has a public REST API at `https://api.redgifs.com` with a Swagger spec at SwaggerHub. Key findings:
-
-- **Authentication**: A temporary Bearer token is required for all requests. It is obtained anonymously via `GET /v2/auth/temporary` — no account needed. The token must be attached as `Authorization: Bearer {token}` on subsequent requests.
-- **Search endpoint**: `GET /v2/gifs/search?search_text={tags}&order={order}&count={count}&page={page}` — returns paginated GIF/video results.
-- **Response fields**: Each item includes video URLs (HD, SD), dimensions, tags, and duration.
-- **No account required**: Unlike e621, basic search works without login.
-
-#### CORS Risk (Critical)
-
-CORS issues with `api.redgifs.com` have been actively reported by browser-based projects. The API appears to restrict `Access-Control-Allow-Origin` to specific origins, which may block direct `fetch()` calls from this app. This is the primary feasibility risk and must be tested before investing in full implementation.
-
-- If CORS is blocked from `file://` or GitHub Pages: a proxy would be required, which breaks the "no backend" architecture of this app.
-- Mitigation: test a bare `fetch("https://api.redgifs.com/v2/auth/temporary")` in the browser console on the hosted domain first.
-
-#### Two Integration Paths
-
-1. **Standalone source** — new "From RedGifs" button on the welcome screen, form with tag search, mirrors e621.js structure.
-2. **Reddit enhancement** — Reddit posts already embed RedGifs iframes; the existing `media_embed` path in `reddit.js` already handles these as iframes. A deeper integration could resolve the actual video URL from RedGifs and play it natively instead.
-
-Path 2 may deliver more value with less work, since Reddit + RedGifs content already partially works.
-
-#### API Summary
-
-| Detail | Value |
-|---|---|
-| Base URL | `https://api.redgifs.com` |
-| Auth endpoint | `GET /v2/auth/temporary` — returns `{ token }` |
-| Search endpoint | `GET /v2/gifs/search?search_text=&order=&count=&page=` |
-| Order options | `trending`, `top`, `latest`, `best` |
-| Response | `{ gifs: [{ id, urls: { hd, sd }, width, height, duration, tags }] }` |
-| Pagination | Page-number based (`page=1`, `page=2`, …) |
-| Rate limit | Not officially documented; 429s reported under heavy use |
-| CORS | **Unconfirmed for browser fetch — test before building** |
-
-#### References
-
-- [RedGIFs REST API on SwaggerHub](https://app.swaggerhub.com/apis/RedGIFs/RedGIFs/1.0.0)
-- [redgifs Python wrapper docs](https://redgifs.readthedocs.io/en/stable/api.html)
-- [CORS issue report](https://github.com/extesy/hoverzoom/issues/1194)
-
-### Reddit Upvoted Posts Feed (Investigate)
+### `RD-UP` — Reddit Upvoted Posts Feed (Investigate)
 
 Display a slideshow sourced from the logged-in user's Reddit upvoted posts via `GET /user/{username}/upvoted.json`.
 
@@ -109,45 +60,28 @@ The endpoint exists and works, but requires Reddit OAuth — a significant step 
 
 Feasible but non-trivial. Best approached after the core Reddit and E621 integrations are stable.
 
-### Add Back Button to Slideshow
-
-Add a back button to the slideshow view that returns the user to the welcome screen. The button lives in the top-left corner, hidden by default, and fades in on hover.
-
-#### Scope
-
-- The slideshow is shown by hiding `#welcome` and displaying `#slideshow-grid`
-- A back button needs to sit above the grid (`z-index` above slides), visible only on hover
-- Returning to the welcome screen must cleanly stop the current slideshow — slides, timers, and HLS sources all need disposing
-
-#### Implementation Notes
-
-- Add a `<button id="slideshowBack">← Back</button>` to `index.html`, positioned `fixed` top-left, above the slideshow grid (`z-index: 4`)
-- Style in `style.css`: `opacity: 0` by default, `opacity: 1` on `#slideshowBack:hover`; use `transition: opacity 0.2s` for a smooth fade; give it enough padding to be an easy hover target
-- In `script.js`, add a `stopSlideShow()` function that:
-  - Clears all active slide timers (currently managed as local `timeout` vars inside `startSlideShow` closures — may need a module-level registry to track them)
-  - Destroys all HLS instances in `hlsSources` and clears the object
-  - Revokes all Blob URLs on current slide elements (`disposeResources` already does this per-element — call it on each slide)
-  - Empties all `.slideshow-row` elements
-  - Resets `inProgress = false` and `slidesFetcher = null`
-  - Hides `#slideshow-grid`, shows `#welcome`, restores `#menu-tip`
-  - Restores `.titleContent` and `.noForm` elements
-- Bind `#slideshowBack` to `stopSlideShow()` in `window.onload`
-- Hide `#slideshowBack` when on the welcome screen; show it when the slideshow starts (mirror how `#menu-tip` is hidden in `openReddit`/`openE621`/`openDir2`)
-
-#### Complexity Note
-
-The timer cleanup is the hardest part — `timeout` variables are currently scoped inside `startSlideShow` closures with no external reference. This will likely require a module-level `Set` or array to register active timeouts so `stopSlideShow()` can cancel them all.
-
 ## Done
 
-### Auto Resize UI Depending on Browser Size
+### `RG` — Integrate RedGifs
+
+Full integration delivered across `redgifs.js`, `index.html`, `script.js`, and `style.css`. Anonymous Bearer token auth via `GET /v2/auth/temporary`; tag search using `?tags=` parameter with order and page-number pagination. Videos are served as `<iframe src="https://www.redgifs.com/ifr/{id}">` to work around `media.redgifs.com` CORS restrictions on the video CDN. Back button and loading animation shared with all other sources.
+
+### `LOAD-ANIM` — Port Loading Animation to All Sources
+
+Bucket animation now plays during the API call for Reddit, E621, and RedGifs sources. `animateBucket()` gained an optional `fillFraction` parameter (network sources pass `0.5`; local folder load unchanged). Animation is started before `start*()` is awaited so it's visible during the network request, and cleared on both success and failure.
+
+### `SL-BACK` — Add Back Button to Slideshow
+
+Fixed-position `← Back` button in the top-left corner of the slideshow view. Invisible by default, fades in on hover (`opacity` transition). Clicking it calls `stopSlideShow()` which cancels all active timers via a module-level `activeTimers` Set, destroys HLS instances, disposes blob URLs, clears the bucket animation interval, hides the load container, and restores the welcome screen.
+
+### `UI-RESIZE` — Auto Resize UI Depending on Browser Size
 
 10 `clamp()` / `min()` values applied across `style.css` and `tooltip.css`. Buttons, forms, decorative images, settings dialog, and tooltip all scale continuously from 360px to 1920px. Zero new media queries — existing portrait/landscape overrides preserved unchanged.
 
-### Build E621.net Integration
+### `E6` — Build E621.net Integration
 
 Full integration delivered across `e621.js`, `index.html`, `script.js`, and `style.css`. Covers tag search, sort, rating filters, optional account login with localStorage persistence, cursor-based pagination, rate limiting, video slide support, form styling parity, and CORS error surfacing.
 
-### Add Back Button to Menu Screens
+### `MENU-BACK` — Add Back Button to Menu Screens
 
 `← Back` button added to the top of `#redditForm` and `#e621Form`. `showWelcome()` in `script.js` reverses the form-show logic. Field values are preserved automatically.

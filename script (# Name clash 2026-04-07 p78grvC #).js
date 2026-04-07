@@ -63,23 +63,21 @@ async function openDir2() {
 }
 
 async function openReddit() {
-    document.getElementById("load-container").style.display = 'block'
-    animateBucket(0.5)
     if(await startReddit()) {
         for (const e of document.getElementsByClassName("titleContent")) {
             e.style.display = 'none'
         }
+        document.getElementById("load-container").style.display = 'block'
         document.getElementById("menu-tip").style.display = 'none'
+        animateBucket(0.5)
         inProgress = true
         slidesFetcher = nextRedditSlides
         for (const e of document.getElementsByClassName("slideshow-row")) {
             await startSlideShow(e)
         }
         clearInterval(animationInterval)
-        document.getElementById("slideshowBack").style.display = 'block'
-    } else {
-        clearInterval(animationInterval)
         document.getElementById("load-container").style.display = 'none'
+        document.getElementById("slideshowBack").style.display = 'block'
     }
 }
 
@@ -156,10 +154,7 @@ async function startSlideShow(root) {
                     vidDiv.play()
                 } else if (slide.url) {
                     vidDiv.src = slide.url
-                    vidDiv.play().catch(() => {
-                        vidDiv.muted = true
-                        vidDiv.play().catch(() => {})
-                    })
+                    vidDiv.play()
                 } else if (slide.hls) {
                     var hls = new Hls();
                     hlsSources[slide.hls] = hls
@@ -345,44 +340,40 @@ function showWelcome() {
 }
 
 async function openRedgifs() {
-    document.getElementById("load-container").style.display = 'block'
-    animateBucket(0.5)
     if (await startRedgifs()) {
         for (const e of document.getElementsByClassName("titleContent")) {
             e.style.display = 'none'
         }
+        document.getElementById("load-container").style.display = 'block'
         document.getElementById("menu-tip").style.display = 'none'
+        animateBucket(0.5)
         inProgress = true
         slidesFetcher = nextRedgifsSlides
         for (const e of document.getElementsByClassName("slideshow-row")) {
             await startSlideShow(e)
         }
         clearInterval(animationInterval)
-        document.getElementById("slideshowBack").style.display = 'block'
-    } else {
-        clearInterval(animationInterval)
         document.getElementById("load-container").style.display = 'none'
+        document.getElementById("slideshowBack").style.display = 'block'
     }
 }
 
 async function openE621() {
-    document.getElementById("load-container").style.display = 'block'
-    animateBucket(0.5)
     if (await startE621()) {
         for (const e of document.getElementsByClassName("titleContent")) {
             e.style.display = 'none'
         }
+        document.getElementById("load-container").style.display = 'block'
         document.getElementById("menu-tip").style.display = 'none'
+        animateBucket(0.5)
         inProgress = true
         slidesFetcher = nextE621Slides
         for (const e of document.getElementsByClassName("slideshow-row")) {
             await startSlideShow(e)
         }
         clearInterval(animationInterval)
-        document.getElementById("slideshowBack").style.display = 'block'
-    } else {
-        clearInterval(animationInterval)
         document.getElementById("load-container").style.display = 'none'
+        document.getElementById("slideshowBack").style.display = 'block'
     }
 }
 

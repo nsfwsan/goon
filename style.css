@@ -24,6 +24,21 @@ body {
     flex-direction: column;
 }
 
+#slideshowBack {
+    display: none;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 5;
+    opacity: 0;
+    transition: opacity 0.2s;
+    padding: 10px 16px;
+    cursor: pointer;
+}
+#slideshowBack:hover {
+    opacity: 1;
+}
+
 .slideshow-row {
     width: 100%;
     height: 100%;
@@ -203,12 +218,12 @@ a {
     display: inline-block;
 }
 
-#redditForm, #e621Form {
+#redditForm, #e621Form, #redgifsForm {
     width: clamp(240px, 10.42vw + 180px, 380px);
     margin: 0 auto;
 }
 
-#redditForm>div, #e621Form>div {
+#redditForm>div, #e621Form>div, #redgifsForm>div {
     display: flex;
     justify-content: space-between;
     margin-bottom: 5px;
@@ -229,7 +244,7 @@ a {
     text-align: right;
 }
 
-#redditSubmit, #e621Submit {
+#redditSubmit, #e621Submit, #redgifsSubmit {
     padding: 7px;
     font-family: inherit;
     font-size: clamp(16px, 0.87vw + 11.3px, 30px);
@@ -239,7 +254,7 @@ a {
 
 
 @media (orientation: portrait) and (max-width: 1000px) {
-    .browse, #redditSubmit, #e621Submit {
+    .browse, #redditSubmit, #e621Submit, #redgifsSubmit {
         font-size: 32px;
     }
     #settingsDialog {
@@ -266,7 +281,7 @@ a {
         font-size: 14vw;
     }
 
-    #redditForm, #e621Form {
+    #redditForm, #e621Form, #redgifsForm {
         width: 90%;
     }
     #menu-hover {
